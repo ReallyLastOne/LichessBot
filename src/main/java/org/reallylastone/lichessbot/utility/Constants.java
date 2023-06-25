@@ -1,4 +1,4 @@
-package org.reallylastone.lichessbot.core;
+package org.reallylastone.lichessbot.utility;
 
 public class Constants {
 	private Constants() {

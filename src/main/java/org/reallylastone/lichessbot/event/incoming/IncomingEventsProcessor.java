@@ -1,6 +1,6 @@
 package org.reallylastone.lichessbot.event.incoming;
 
-import org.reallylastone.lichessbot.core.Util;
+import org.reallylastone.lichessbot.utility.Util;
 
 import java.net.URI;
 import java.net.http.HttpClient;

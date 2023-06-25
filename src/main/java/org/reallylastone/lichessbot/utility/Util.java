@@ -1,4 +1,4 @@
-package org.reallylastone.lichessbot.core;
+package org.reallylastone.lichessbot.utility;
 
 import java.net.http.HttpRequest;
 
