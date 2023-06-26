@@ -1,4 +1,6 @@
-package org.reallylastone.lichessbot.event.incoming;
+package org.reallylastone.lichessbot.event.game;
+
+import static org.reallylastone.lichessbot.utility.Constants.URL.BOT_GAME_EVENTS_URL;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -10,21 +12,23 @@ import java.util.function.Function;
 
 import org.reallylastone.lichessbot.utility.Util;
 
-public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
+public class GameEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
 
 	private final HttpClient client;
 	private final Function<String, T> converter;
 	private Flow.Subscription subscription;
 
-	public IncomingEventsProcessor(HttpClient client, Function<String, T> converter) {
+	public GameEventsProcessor(HttpClient client, Function<String, T> converter) {
 		this.client = client;
 		this.converter = converter;
 	}
 
-	public void start(String url) {
-		HttpRequest request = Util.authenticatedBuilder().uri(URI.create(url))
+	public void start(String gameId) {
+		HttpRequest request = Util.authenticatedBuilder()
+				.uri(URI.create(BOT_GAME_EVENTS_URL.replace("{gameId}", gameId)))
 				.header("Content-Type", "application/x-ndjson").GET().build();
-		new Thread(() -> client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this)).join()).start();
+
+		new Thread(() -> client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this))).start();
 	}
 
 	public void onSubscribe(Flow.Subscription subscription) {
@@ -33,6 +37,7 @@ public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implement
 
 	public void onNext(String item) {
 		subscription.request(1);
+
 		if (item == null || item.isEmpty() || item.isBlank()) {
 			return;
 		}
