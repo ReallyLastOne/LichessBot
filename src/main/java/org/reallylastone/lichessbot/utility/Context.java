@@ -1,5 +1,8 @@
 package org.reallylastone.lichessbot.utility;
 
+import org.reallylastone.lichessbot.core.ChallengeHandlerStrategy;
+import org.reallylastone.lichessbot.core.MaxActiveChallengeHandlerStrategy;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -34,5 +37,9 @@ public class Context {
 		token = (String) appProps.get("token");
 
 		return token;
+	}
+
+	public static ChallengeHandlerStrategy getMaxActiveChallengeHandlerStrategy() {
+		return new MaxActiveChallengeHandlerStrategy();
 	}
 }

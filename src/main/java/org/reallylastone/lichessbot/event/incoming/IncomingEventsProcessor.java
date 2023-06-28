@@ -8,7 +8,7 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
 
-import org.reallylastone.lichessbot.utility.Util;
+import org.reallylastone.lichessbot.http.HttpUtil;
 
 public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
 
@@ -22,7 +22,7 @@ public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implement
 	}
 
 	public void start(String url) {
-		HttpRequest request = Util.authenticatedBuilder().uri(URI.create(url))
+		HttpRequest request = HttpUtil.authenticatedBuilder().uri(URI.create(url))
 				.header("Content-Type", "application/x-ndjson").GET().build();
 		new Thread(() -> client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this)).join()).start();
 	}

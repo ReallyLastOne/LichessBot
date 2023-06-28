@@ -11,7 +11,7 @@ public class GameFull extends GameEvent {
 	public White white;
 	public Black black;
 	public String initialFen;
-	public State state;
+	public GameState state;
 
 	@Override
 	public String toString() {

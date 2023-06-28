@@ -10,7 +10,7 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
 
-import org.reallylastone.lichessbot.utility.Util;
+import org.reallylastone.lichessbot.http.HttpUtil;
 
 public class GameEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
 
@@ -24,7 +24,7 @@ public class GameEventsProcessor<T> extends SubmissionPublisher<T> implements Fl
 	}
 
 	public void start(String gameId) {
-		HttpRequest request = Util.authenticatedBuilder()
+		HttpRequest request = HttpUtil.authenticatedBuilder()
 				.uri(URI.create(BOT_GAME_EVENTS_URL.replace("{gameId}", gameId)))
 				.header("Content-Type", "application/x-ndjson").GET().build();
 

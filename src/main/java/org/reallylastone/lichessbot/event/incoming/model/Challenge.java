@@ -1,7 +1,6 @@
 package org.reallylastone.lichessbot.event.incoming.model;
 
-public class Challenge extends IncomingEvent {
-	public String id;
+public class Challenge extends ChallengeItem {
 	public String url;
 	public String status;
 	public Compat compat;
