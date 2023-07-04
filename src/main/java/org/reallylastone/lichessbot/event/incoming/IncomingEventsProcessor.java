@@ -7,10 +7,13 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.reallylastone.lichessbot.http.HttpUtil;
 
 public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
+	private final Logger logger = Logger.getLogger(IncomingEventsProcessor.class.getName());
 
 	private final HttpClient client;
 	private final Function<String, T> converter;
@@ -38,8 +41,8 @@ public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implement
 		}
 
 		T apply = converter.apply(item);
+		logger.log(Level.INFO, () -> "Publishing: " + apply);
 		submit(apply);
-		System.out.println(apply);
 	}
 
 	public void onError(Throwable ex) {

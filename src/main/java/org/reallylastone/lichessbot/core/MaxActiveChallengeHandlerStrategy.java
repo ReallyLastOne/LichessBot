@@ -1,5 +1,6 @@
 package org.reallylastone.lichessbot.core;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.reallylastone.lichessbot.event.incoming.model.Challenge;
@@ -27,7 +28,8 @@ public class MaxActiveChallengeHandlerStrategy implements ChallengeHandlerStrate
 		if (activeGames.size() < maxActiveGames && !activeChallenges.isEmpty()) {
 			try {
 				HttpRequestSender.acceptChallenge(activeChallenges.get(0).id);
-			} catch (Exception e) {
+			} catch (IOException | InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 		}
 	}
