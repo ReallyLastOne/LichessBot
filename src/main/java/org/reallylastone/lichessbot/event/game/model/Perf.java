@@ -1,6 +1,6 @@
 package org.reallylastone.lichessbot.event.game.model;
 
-class Perf {
+public class Perf {
 	public String name;
 
 	@Override

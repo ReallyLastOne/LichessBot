@@ -18,8 +18,7 @@ class StockfishRunnerImpl implements StockfishRunner {
 	private OutputStreamWriter processWriter;
 
 	public void startEngine() throws IOException {
-		engineProcess = Runtime.getRuntime().exec(
-				new String[] {Context.getStockfishPath()});
+		engineProcess = Runtime.getRuntime().exec(new String[] { Context.getStockfishPath() });
 		processReader = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
 		processWriter = new OutputStreamWriter(engineProcess.getOutputStream());
 	}
@@ -30,7 +29,7 @@ class StockfishRunnerImpl implements StockfishRunner {
 		try {
 			processWriter.write(command.getCLICommand() + System.lineSeparator());
 			processWriter.flush();
-			return getCommandOutput(commandDelimiter);
+			return commandDelimiter == null ? null : getCommandOutput(commandDelimiter);
 		} catch (IOException e) {
 			throw new StockfishProcessingException("error occurred during writing command to process", e);
 		}

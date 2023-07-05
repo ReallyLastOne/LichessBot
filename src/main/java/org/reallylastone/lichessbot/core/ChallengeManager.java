@@ -1,13 +1,15 @@
 package org.reallylastone.lichessbot.core;
 
+import static org.reallylastone.lichessbot.utility.Constants.URL.BOT_GAME_EVENTS_URL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
+import org.reallylastone.lichessbot.event.GenericEventProcessor;
 import org.reallylastone.lichessbot.event.game.GameEventFactory;
-import org.reallylastone.lichessbot.event.game.GameEventsProcessor;
 import org.reallylastone.lichessbot.event.game.model.GameEvent;
 import org.reallylastone.lichessbot.event.incoming.model.Challenge;
 import org.reallylastone.lichessbot.event.incoming.model.ChallengeCanceled;
@@ -44,9 +46,11 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 					.collect(Collectors.toList());
 		} else if (item instanceof GameStart start) {
 			activeGames.add(start);
-			GameEventsProcessor<GameEvent> gameListener = new GameEventsProcessor<>(Context.getClient(),
+			GenericEventProcessor<GameEvent> gameListener = new GenericEventProcessor<>(Context.getClient(),
 					GameEventFactory::produce);
-			gameListener.start(start.gameId);
+			gameListener.start(BOT_GAME_EVENTS_URL.replace("{gameId}", start.gameId));
+			GameManager gameManager = new GameManager();
+			gameListener.subscribe(gameManager);
 		} else if (item instanceof GameFinish finish) {
 			activeGames = activeGames.stream().filter(e -> !Objects.equals(e.id, finish.gameId))
 					.collect(Collectors.toList());

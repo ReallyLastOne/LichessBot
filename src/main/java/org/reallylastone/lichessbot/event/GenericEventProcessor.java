@@ -1,4 +1,4 @@
-package org.reallylastone.lichessbot.event.incoming;
+package org.reallylastone.lichessbot.event;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,14 +12,14 @@ import java.util.logging.Logger;
 
 import org.reallylastone.lichessbot.http.HttpUtil;
 
-public class IncomingEventsProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
-	private final Logger logger = Logger.getLogger(IncomingEventsProcessor.class.getName());
+public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
+	private final Logger logger = Logger.getLogger(GenericEventProcessor.class.getName());
 
 	private final HttpClient client;
 	private final Function<String, T> converter;
 	private Flow.Subscription subscription;
 
-	public IncomingEventsProcessor(HttpClient client, Function<String, T> converter) {
+	public GenericEventProcessor(HttpClient client, Function<String, T> converter) {
 		this.client = client;
 		this.converter = converter;
 	}

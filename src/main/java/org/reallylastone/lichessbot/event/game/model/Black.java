@@ -1,6 +1,6 @@
 package org.reallylastone.lichessbot.event.game.model;
 
-class Black {
+public class Black {
 	public String id;
 	public String name;
 	public int rating;
