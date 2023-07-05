@@ -1,9 +1,8 @@
 package org.reallylastone.lichessbot.utility;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpClient;
-import java.util.Objects;
 import java.util.Properties;
 
 import org.reallylastone.lichessbot.core.ChallengeHandlerStrategy;
@@ -46,15 +45,11 @@ public class Context {
 			return classVariable;
 		}
 
-		String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(""))
-				.getPath();
-		String appConfigPath = rootPath + "application.properties";
+		InputStream rootPath = Context.class.getClassLoader().getResourceAsStream("application.properties");
 
 		Properties appProps = new Properties();
 		try {
-			try (FileInputStream inStream = new FileInputStream(appConfigPath)) {
-				appProps.load(inStream);
-			}
+			appProps.load(rootPath);
 		} catch (IOException e) {
 			return null;
 		}

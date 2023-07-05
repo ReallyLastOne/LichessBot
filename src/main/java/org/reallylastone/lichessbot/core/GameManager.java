@@ -1,6 +1,7 @@
 package org.reallylastone.lichessbot.core;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.logging.Level;
@@ -80,11 +81,12 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 
 	@Override
 	public void onError(Throwable ex) {
-		ex.printStackTrace();
+		logger.log(Level.SEVERE, () -> "Exception in GameManager: " + Arrays.toString(ex.getStackTrace()));
 	}
 
 	@Override
 	public void onComplete() {
+		logger.log(Level.INFO, () -> "GameManager complete");
 	}
 
 }

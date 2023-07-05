@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
@@ -46,10 +47,14 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 	}
 
 	public void onError(Throwable ex) {
+		logger.log(Level.SEVERE, () -> "Exception in GenericEventProcessor: " + Arrays.toString(ex.getStackTrace()));
+
 		closeExceptionally(ex);
 	}
 
 	public void onComplete() {
+		logger.log(Level.INFO, () -> "GenericEventProcessor complete");
+
 		close();
 	}
 }

@@ -5,11 +5,14 @@ import static org.reallylastone.lichessbot.utility.Constants.URL.BOT_GAME_EVENTS
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Flow;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.reallylastone.lichessbot.event.GenericEventProcessor;
@@ -27,6 +30,7 @@ import org.reallylastone.lichessbot.http.HttpRequestSender;
 import org.reallylastone.lichessbot.utility.Context;
 
 public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
+	private final Logger logger = Logger.getLogger(ChallengeManager.class.getName());
 	private final ChallengeHandlerStrategy strategy;
 	private final Thread noChallengesListenerThread;
 	private List<Challenge> activeChallenges = new ArrayList<>();
@@ -103,10 +107,12 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 
 	@Override
 	public void onError(Throwable ex) {
+		logger.log(Level.SEVERE, () -> "Exception in GameManager: " + Arrays.toString(ex.getStackTrace()));
 	}
 
 	@Override
 	public void onComplete() {
+		logger.log(Level.INFO, () -> "ChallengeManager complete");
 	}
 
 }
