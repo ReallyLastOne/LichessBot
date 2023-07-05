@@ -20,9 +20,9 @@ public class GameEventFactory {
 		return switch (event.get("type").getAsString()) {
 		case "gameFull" -> GSON.fromJson(event, GameFull.class);
 		case "gameState" -> GSON.fromJson(event, GameState.class);
-		case "chatLine " -> GSON.fromJson(event, ChatLine.class);
+		case "chatLine" -> GSON.fromJson(event, ChatLine.class);
 		case "opponentGone" -> GSON.fromJson(event, OpponentGone.class);
-		default -> throw new IllegalArgumentException("unknown game event type");
+		default -> throw new IllegalArgumentException("unknown game event type: " + event.get("type").getAsString());
 		};
 	}
 }

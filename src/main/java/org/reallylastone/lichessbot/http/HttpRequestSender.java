@@ -1,7 +1,6 @@
 package org.reallylastone.lichessbot.http;
 
-import static org.reallylastone.lichessbot.utility.Constants.URL.ACCEPT_CHALLENGE_URL;
-import static org.reallylastone.lichessbot.utility.Constants.URL.MAKE_MOVE_URL;
+import static org.reallylastone.lichessbot.utility.Constants.URL.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,8 +25,38 @@ public class HttpRequestSender {
 		return send(request);
 	}
 
+	public static HttpResponse<String> cancelChallenge(String challengeId) throws IOException, InterruptedException {
+		HttpRequest request = buildRequest(CANCEL_CHALLENGE.replace("{challengeId}", challengeId),
+				HttpRequest.BodyPublishers.ofString(""));
+
+		return send(request);
+	}
+
+	public static HttpResponse<String> createChallenge(String form, String username)
+			throws IOException, InterruptedException {
+		HttpRequest request = buildRequest(CREATE_CHALLENGE.replace("{username}", username),
+				HttpRequest.BodyPublishers.ofString(form), "Content-Type", "application/x-www-form-urlencoded");
+
+		return send(request);
+	}
+
+	public static HttpResponse<String> declineChallenge(String challengeId) throws IOException, InterruptedException {
+		HttpRequest request = buildRequest(DECLINE_CHALLENGE.replace("{challengeId}", challengeId),
+				HttpRequest.BodyPublishers.ofString(""));
+
+		return send(request);
+	}
+
 	private static HttpRequest buildRequest(String url, HttpRequest.BodyPublisher bodyPublisher) {
-		return HttpUtil.authenticatedBuilder().uri(URI.create(url)).POST(bodyPublisher).build();
+		return builder(url, bodyPublisher).build();
+	}
+
+	private static HttpRequest buildRequest(String url, HttpRequest.BodyPublisher bodyPublisher, String... headers) {
+		return builder(url, bodyPublisher).headers(headers).build();
+	}
+
+	private static HttpRequest.Builder builder(String url, HttpRequest.BodyPublisher bodyPublisher) {
+		return HttpUtil.authenticatedBuilder().uri(URI.create(url)).POST(bodyPublisher);
 	}
 
 	private static HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {

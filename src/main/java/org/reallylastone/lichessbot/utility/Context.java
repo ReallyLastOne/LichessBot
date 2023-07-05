@@ -65,6 +65,6 @@ public class Context {
 	}
 
 	public static ChallengeHandlerStrategy getMaxActiveChallengeHandlerStrategy() {
-		return new MaxActiveChallengeHandlerStrategy();
+		return new MaxActiveChallengeHandlerStrategy(1);
 	}
 }

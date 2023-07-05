@@ -27,7 +27,13 @@ public class MaxActiveChallengeHandlerStrategy implements ChallengeHandlerStrate
 	public void handle(List<Challenge> activeChallenges, List<GameStart> activeGames) {
 		if (activeGames.size() < maxActiveGames && !activeChallenges.isEmpty()) {
 			try {
-				HttpRequestSender.acceptChallenge(activeChallenges.get(0).id);
+				for (Challenge activeChallenge : activeChallenges) {
+					if (!activeChallenge.destUser.name.equals("GetFun") && activeChallenge.timeControl.limit <= 300 && activeChallenge.timeControl.increment <= 2) {
+						HttpRequestSender.acceptChallenge(activeChallenge.id);
+					} else if (activeChallenge.destUser.name.equals("GetFun")) {
+						HttpRequestSender.cancelChallenge(activeChallenge.id);
+					}
+				}
 			} catch (IOException | InterruptedException e) {
 				throw new RuntimeException(e);
 			}
