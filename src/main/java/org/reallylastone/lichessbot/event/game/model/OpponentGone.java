@@ -1,9 +1,8 @@
 package org.reallylastone.lichessbot.event.game.model;
 
 public class OpponentGone extends GameEvent {
-	public String type;
 	public boolean gone;
-	public int claimWinInSeconds;
+	public Integer claimWinInSeconds;
 
 	@Override
 	public String toString() {

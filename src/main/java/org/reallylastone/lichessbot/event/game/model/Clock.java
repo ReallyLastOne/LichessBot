@@ -1,6 +1,6 @@
 package org.reallylastone.lichessbot.event.game.model;
 
-class Clock {
+public class Clock {
 	public int initial;
 	public int increment;
 

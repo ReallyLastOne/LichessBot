@@ -2,7 +2,7 @@ package org.reallylastone.lichessbot.event.game.model;
 
 import com.google.gson.annotations.SerializedName;
 
-class Variant {
+public class Variant {
 	public String key;
 	public String name;
 	@SerializedName("short")
