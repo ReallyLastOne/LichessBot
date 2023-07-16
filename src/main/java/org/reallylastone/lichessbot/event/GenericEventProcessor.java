@@ -28,7 +28,10 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 	public void start(String url) {
 		HttpRequest request = HttpUtil.authenticatedBuilder().uri(URI.create(url))
 				.header("Content-Type", "application/x-ndjson").GET().build();
-		new Thread(() -> client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this)).join()).start();
+		new Thread(() -> {
+			logger.log(Level.INFO, () -> "Starting listening on URL: " + url);
+			client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this));
+		}).start();
 	}
 
 	public void onSubscribe(Flow.Subscription subscription) {
