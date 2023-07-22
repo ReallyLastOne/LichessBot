@@ -46,7 +46,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 					if (activeChallenges.isEmpty() && activeGames.isEmpty()) {
 						Optional<OnlineBotEvent> random = onlineBotManager.getRandom();
 						if (random.isPresent()) {
-							Map<String, String> challengeParams = Map.of("rated", "true", "clock.limit", "180",
+							Map<String, String> challengeParams = Map.of("rated", "false", "clock.limit", "180",
 									"clock.increment", "0", "color", "random", "variant", "standard", "keepAliveStream",
 									"false");
 							HttpRequestSender.createChallenge(challengeParams.entrySet().stream().map(
