@@ -33,7 +33,7 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 	@Override
 	public void onNext(GameEvent item) {
 		subscription.request(1);
-		logger.log(Level.INFO, () -> "Received: " + item);
+		logger.log(Level.FINER, () -> "Received: " + item);
 
 		if (item instanceof GameFull full) {
 			currentState = full.state;

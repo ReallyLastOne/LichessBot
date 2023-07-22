@@ -51,7 +51,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 									"false");
 							HttpRequestSender.createChallenge(challengeParams.entrySet().stream().map(
 									e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
-									.collect(Collectors.joining("&")), random.get().username);
+									.collect(Collectors.joining("&")), "Dardd");
 						}
 					} else if (activeChallenges.size() == 1 && activeGames.isEmpty()) {
 						if (repeated != null) {
@@ -82,6 +82,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 	@Override
 	public void onNext(IncomingEvent item) {
 		subscription.request(1);
+		logger.log(Level.FINER, () -> "Received: " + item);
 
 		if (item instanceof Challenge challenge) {
 			activeChallenges.add(challenge);

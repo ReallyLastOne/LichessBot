@@ -24,6 +24,8 @@ public class OnlineBotManager implements Flow.Subscriber<OnlineBotEvent> {
 
 	@Override
 	public void onNext(OnlineBotEvent item) {
+		logger.log(Level.FINER, () -> "Received: " + item);
+
 		if (completed) {
 			events.clear();
 		}

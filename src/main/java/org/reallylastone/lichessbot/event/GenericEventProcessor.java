@@ -45,7 +45,7 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 		}
 
 		T apply = converter.apply(item);
-		logger.log(Level.INFO, () -> "Publishing: " + apply);
+		logger.log(Level.FINER, () -> "Publishing: " + apply);
 		submit(apply);
 	}
 
