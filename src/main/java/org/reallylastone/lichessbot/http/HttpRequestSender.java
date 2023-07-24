@@ -6,41 +6,47 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.reallylastone.lichessbot.utility.Context;
 
 public class HttpRequestSender {
+	private static final Logger logger = Logger.getLogger(HttpRequestSender.class.getName());
 
-	public static HttpResponse<String> acceptChallenge(String id) throws IOException, InterruptedException {
+	private HttpRequestSender() {
+	}
+
+	public static Optional<HttpResponse<String>> acceptChallenge(String id) {
 		HttpRequest request = buildRequest(ACCEPT_CHALLENGE_URL.replace("{challengeId}", id),
 				HttpRequest.BodyPublishers.noBody());
 
 		return send(request);
 	}
 
-	public static HttpResponse<String> makeMove(String gameId, String move) throws IOException, InterruptedException {
+	public static Optional<HttpResponse<String>> makeMove(String gameId, String move) {
 		HttpRequest request = buildRequest(MAKE_MOVE_URL.replace("{gameId}", gameId).replace("{move}", move),
 				HttpRequest.BodyPublishers.ofString(""));
 
 		return send(request);
 	}
 
-	public static HttpResponse<String> cancelChallenge(String challengeId) throws IOException, InterruptedException {
+	public static Optional<HttpResponse<String>> cancelChallenge(String challengeId) {
 		HttpRequest request = buildRequest(CANCEL_CHALLENGE.replace("{challengeId}", challengeId),
 				HttpRequest.BodyPublishers.ofString(""));
 
 		return send(request);
 	}
 
-	public static HttpResponse<String> createChallenge(String form, String username)
-			throws IOException, InterruptedException {
+	public static Optional<HttpResponse<String>> createChallenge(String form, String username) {
 		HttpRequest request = buildRequest(CREATE_CHALLENGE.replace("{username}", username),
 				HttpRequest.BodyPublishers.ofString(form), "Content-Type", "application/x-www-form-urlencoded");
 
 		return send(request);
 	}
 
-	public static HttpResponse<String> declineChallenge(String challengeId) throws IOException, InterruptedException {
+	public static Optional<HttpResponse<String>> declineChallenge(String challengeId) {
 		HttpRequest request = buildRequest(DECLINE_CHALLENGE.replace("{challengeId}", challengeId),
 				HttpRequest.BodyPublishers.ofString(""));
 
@@ -59,7 +65,14 @@ public class HttpRequestSender {
 		return HttpUtil.authenticatedBuilder().uri(URI.create(url)).POST(bodyPublisher);
 	}
 
-	private static HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {
-		return Context.getClient().send(request, HttpResponse.BodyHandlers.ofString());
+	private static Optional<HttpResponse<String>> send(HttpRequest request) {
+		try {
+			return Optional.of(Context.getClient().send(request, HttpResponse.BodyHandlers.ofString()));
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+			logger.log(Level.SEVERE,
+					() -> "error occurred during sending request %s with exception %s".formatted(request, e.getMessage()));
+			return Optional.empty();
+		}
 	}
 }

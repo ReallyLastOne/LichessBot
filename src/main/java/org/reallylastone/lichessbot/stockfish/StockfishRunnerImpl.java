@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.reallylastone.lichessbot.stockfish.command.QuitCommand;
@@ -17,21 +18,28 @@ class StockfishRunnerImpl implements StockfishRunner {
 	private BufferedReader processReader;
 	private OutputStreamWriter processWriter;
 
-	public void startEngine() throws IOException {
-		engineProcess = Runtime.getRuntime().exec(new String[] { Context.getStockfishPath() });
-		processReader = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
-		processWriter = new OutputStreamWriter(engineProcess.getOutputStream());
+	public void startEngine() {
+		try {
+			engineProcess = Runtime.getRuntime().exec(new String[] { Context.getStockfishPath() });
+			processReader = new BufferedReader(new InputStreamReader(engineProcess.getInputStream()));
+			processWriter = new OutputStreamWriter(engineProcess.getOutputStream());
+		} catch (IOException e) {
+			throw new StockfishProcessingException(
+					"could not start stockfish engine, exception %s".formatted(e.getMessage()), e);
+		}
 	}
 
 	public String sendCommand(StockfishCommand command) {
 		Predicate<String> commandDelimiter = command.getTerminator();
 
 		try {
+			logger.log(Level.FINEST, () -> "executing stockfish command %s".formatted(command));
 			processWriter.write(command.getCLICommand() + System.lineSeparator());
 			processWriter.flush();
 			return commandDelimiter == null ? null : getCommandOutput(commandDelimiter);
 		} catch (IOException e) {
-			throw new StockfishProcessingException("error occurred during writing command to process", e);
+			throw new StockfishProcessingException(
+					"error occurred during writing command to process %s".formatted(command), e);
 		}
 	}
 
@@ -46,6 +54,7 @@ class StockfishRunnerImpl implements StockfishRunner {
 
 	public void stopEngine() {
 		try {
+			logger.log(Level.INFO, "stopping stockfish engine...");
 			sendCommand(new QuitCommand());
 			processReader.close();
 			processWriter.close();

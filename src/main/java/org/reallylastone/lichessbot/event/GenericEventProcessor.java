@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
@@ -28,16 +27,17 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 	public void start(String url) {
 		HttpRequest request = HttpUtil.authenticatedBuilder().uri(URI.create(url))
 				.header("Content-Type", "application/x-ndjson").GET().build();
-		new Thread(() -> {
-			logger.log(Level.INFO, () -> "Starting listening on URL: " + url);
-			client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this));
-		}).start();
+		logger.log(Level.INFO, () -> "Starting listening on URL: " + url);
+		client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this));
 	}
 
+	@Override
 	public void onSubscribe(Flow.Subscription subscription) {
-		(this.subscription = subscription).request(1);
+		this.subscription = subscription;
+		subscription.request(1);
 	}
 
+	@Override
 	public void onNext(String item) {
 		subscription.request(1);
 		if (item == null || item.isEmpty() || item.isBlank()) {
@@ -49,12 +49,14 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 		submit(apply);
 	}
 
+	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.SEVERE, () -> "Exception in GenericEventProcessor: " + Arrays.toString(ex.getStackTrace()));
+		logger.log(Level.SEVERE, () -> "Exception in GenericEventProcessor %s".formatted(ex.getMessage()));
 
 		closeExceptionally(ex);
 	}
 
+	@Override
 	public void onComplete() {
 		logger.log(Level.INFO, () -> "GenericEventProcessor complete");
 
