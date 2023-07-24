@@ -57,7 +57,7 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 			String random = opponentSupplier.get();
 			logger.log(Level.INFO, () -> "Sending game challenge to %s".formatted(random));
 
-			Map<String, String> challengeParams = Map.of("rated", "false", "clock.limit", "180", "clock.increment", "0",
+			Map<String, String> challengeParams = Map.of("rated", "true", "clock.limit", "180", "clock.increment", "0",
 					"color", "random", "variant", "standard", "keepAliveStream", "false");
 			HttpRequestSender.createChallenge(challengeParams.entrySet().stream()
 					.map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
