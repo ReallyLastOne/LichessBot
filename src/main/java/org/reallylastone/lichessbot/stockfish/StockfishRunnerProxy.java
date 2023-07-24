@@ -1,10 +1,9 @@
 package org.reallylastone.lichessbot.stockfish;
 
-import org.reallylastone.lichessbot.stockfish.command.StockfishCommand;
-
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+
+import org.reallylastone.lichessbot.stockfish.command.StockfishCommand;
 
 public class StockfishRunnerProxy implements StockfishRunner {
 	private final Logger logger = Logger.getLogger(StockfishRunnerProxy.class.getName());
@@ -12,7 +11,7 @@ public class StockfishRunnerProxy implements StockfishRunner {
 	private final AtomicBoolean isRunning = new AtomicBoolean();
 
 	@Override
-	public void startEngine() throws IOException {
+	public void startEngine() {
 		if (!isRunning.getAndSet(true)) {
 			stockfishRunner.startEngine();
 		}

@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.reallylastone.lichessbot.core.ChallengeHandlerStrategy;
-import org.reallylastone.lichessbot.core.MaxActiveChallengeHandlerStrategy;
+import org.reallylastone.lichessbot.core.DefaultChallengeHandlerStrategy;
 
 public class Context {
 	private static final HttpClient client = HttpClient.newHttpClient();
+	public static String BOT_NAME = "GetFun";
 	private static String token = null;
 	private static String stockfishPath = null;
 
@@ -51,6 +53,7 @@ public class Context {
 		try {
 			appProps.load(rootPath);
 		} catch (IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 
@@ -59,7 +62,7 @@ public class Context {
 		return classVariable;
 	}
 
-	public static ChallengeHandlerStrategy getMaxActiveChallengeHandlerStrategy() {
-		return new MaxActiveChallengeHandlerStrategy(1);
+	public static ChallengeHandlerStrategy getMaxActiveChallengeHandlerStrategy(Supplier<String> opponentSupplier) {
+		return new DefaultChallengeHandlerStrategy(1, opponentSupplier);
 	}
 }
