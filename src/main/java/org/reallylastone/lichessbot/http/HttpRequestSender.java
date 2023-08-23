@@ -7,13 +7,14 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.utility.Context;
 
 public class HttpRequestSender {
-	private static final Logger logger = Logger.getLogger(HttpRequestSender.class.getName());
+	private static final Logger logger = LogManager.getLogger(HttpRequestSender.class.getName());
 
 	private HttpRequestSender() {
 	}
@@ -70,7 +71,7 @@ public class HttpRequestSender {
 			return Optional.of(Context.getClient().send(request, HttpResponse.BodyHandlers.ofString()));
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-			logger.log(Level.SEVERE,
+			logger.log(Level.FATAL,
 					() -> "error occurred during sending request %s with exception %s".formatted(request, e.getMessage()));
 			return Optional.empty();
 		}

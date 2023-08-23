@@ -7,13 +7,14 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.http.HttpUtil;
 
 public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements Flow.Processor<String, T> {
-	private final Logger logger = Logger.getLogger(GenericEventProcessor.class.getName());
+	private final Logger logger = LogManager.getLogger(GenericEventProcessor.class.getName());
 
 	private final HttpClient client;
 	private final Function<String, T> converter;
@@ -45,13 +46,14 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 		}
 
 		T apply = converter.apply(item);
-		logger.log(Level.FINER, () -> "Publishing: " + apply);
+		logger.log(Level.DEBUG, () -> "Publishing: " + apply);
 		submit(apply);
 	}
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.SEVERE, () -> "Exception in GenericEventProcessor %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in GenericEventProcessor: %s".formatted(ex.getMessage()));
+		ex.printStackTrace();
 
 		closeExceptionally(ex);
 	}

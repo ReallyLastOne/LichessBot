@@ -1,0 +1,42 @@
+<configuration monitorinterval="60">
+    <properties>
+        <property name="log-path">logs</property>
+        <property name="archive">${log-path}/archive</property>
+    </properties>
+    <appenders>
+        <console name="Console-Appender" target="SYSTEM_OUT">
+            <patternlayout>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%32t] %31c{1} : %msg%n
+                </pattern>>
+            </patternlayout>
+        </console>
+        <file name="File-Appender" filename="${log-path}/fileappender.log">
+            <patternlayout>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%32t] %31c{1} : %msg%n
+                </pattern>
+            </patternlayout>
+        </file>
+        <rollingfile name="RollingFile-Appender" filename="${log-path}/rollingfile.log"
+                     filepattern="${archive}/log%d{yyyy-MM-dd-hh-mm}.gz">
+            <patternlayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%32t] %31c{1} : %msg%n"/>
+            <policies>
+                <timebasedtriggeringpolicy/>
+                <sizebasedtriggeringpolicy size="30 MB"/>
+            </policies>
+            <defaultrolloverstrategy max="30"/>
+        </rollingfile>
+    </appenders>
+    <loggers>
+        <logger name="guru.springframework.blog.log4j2xml" level="debug" additivity="false">
+            <appenderref ref="File-Appender" level="error"/>
+            <appenderref ref="RollingFile-Appender" level="debug"/>
+            <appenderref ref="Console-Appender" level="info"/>
+        </logger>
+        <root level="DEBUG">
+            <appenderref ref="Console-Appender">
+            </appenderref>
+        </root>
+    </loggers>
+</configuration>

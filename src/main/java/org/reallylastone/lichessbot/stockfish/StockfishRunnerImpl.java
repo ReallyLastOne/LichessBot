@@ -5,15 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.stockfish.command.QuitCommand;
 import org.reallylastone.lichessbot.stockfish.command.StockfishCommand;
 import org.reallylastone.lichessbot.utility.Context;
 
 class StockfishRunnerImpl implements StockfishRunner {
-	private final Logger logger = Logger.getLogger(StockfishRunnerImpl.class.getName());
+	private final Logger logger = LogManager.getLogger(StockfishRunnerImpl.class.getName());
 	private Process engineProcess;
 	private BufferedReader processReader;
 	private OutputStreamWriter processWriter;
@@ -33,7 +34,7 @@ class StockfishRunnerImpl implements StockfishRunner {
 		Predicate<String> commandDelimiter = command.getTerminator();
 
 		try {
-			logger.log(Level.FINEST, () -> "executing stockfish command %s".formatted(command));
+			logger.log(Level.TRACE, () -> "executing stockfish command %s".formatted(command));
 			processWriter.write(command.getCLICommand() + System.lineSeparator());
 			processWriter.flush();
 			return commandDelimiter == null ? null : getCommandOutput(commandDelimiter);

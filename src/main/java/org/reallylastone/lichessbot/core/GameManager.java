@@ -4,9 +4,10 @@ import static org.reallylastone.lichessbot.utility.Context.BOT_NAME;
 
 import java.util.List;
 import java.util.concurrent.Flow;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.event.game.model.GameEvent;
 import org.reallylastone.lichessbot.event.game.model.GameFull;
 import org.reallylastone.lichessbot.event.game.model.GameState;
@@ -18,7 +19,7 @@ import org.reallylastone.lichessbot.stockfish.command.GenericCommand;
 import org.reallylastone.lichessbot.stockfish.command.GoMoveTimeCommand;
 
 public class GameManager implements Flow.Subscriber<GameEvent> {
-	private final Logger logger = Logger.getLogger(GameManager.class.getName());
+	private final Logger logger = LogManager.getLogger(GameManager.class.getName());
 	private final StockfishRunner stockfishRunner = new StockfishRunnerProxy();
 	private Flow.Subscription subscription;
 	private GameState currentState;
@@ -32,7 +33,7 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 	@Override
 	public void onNext(GameEvent item) {
 		subscription.request(1);
-		logger.log(Level.FINER, () -> "Received: " + item);
+		logger.log(Level.DEBUG, () -> "Received: " + item);
 
 		switch (item) {
 		case GameFull gameFull -> {
@@ -46,7 +47,7 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.SEVERE, () -> "Exception in GameManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in GameManager %s".formatted(ex.getMessage()));
 	}
 
 	@Override
