@@ -12,9 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.event.GenericEventProcessor;
 import org.reallylastone.lichessbot.event.game.GameEventFactory;
 import org.reallylastone.lichessbot.event.game.model.GameEvent;
@@ -27,7 +28,7 @@ import org.reallylastone.lichessbot.event.incoming.model.IncomingEvent;
 import org.reallylastone.lichessbot.utility.Context;
 
 public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
-	private final Logger logger = Logger.getLogger(ChallengeManager.class.getName());
+	private final Logger logger = LogManager.getLogger(ChallengeManager.class.getName());
 	private final ChallengeHandlerStrategy strategy;
 	private final Map<LocalDateTime, Challenge> activeChallenges = new Hashtable<>();
 	private final List<GameStart> activeGames = new ArrayList<>();
@@ -47,7 +48,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 	@Override
 	public void onNext(IncomingEvent item) {
 		subscription.request(1);
-		logger.log(Level.FINER, () -> "Received: " + item);
+		logger.log(Level.DEBUG, () -> "Received: " + item);
 
 		// synchronizing internal state
 		switch (item) {
@@ -57,13 +58,14 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 		case GameStart gameStart -> onStart(gameStart);
 		case GameFinish gameFinish ->
 			activeGames.removeIf(activeGame -> Objects.equals(activeGame.id, gameFinish.gameId));
-		default -> logger.log(Level.SEVERE, "unknown incoming event type");
+		default -> logger.log(Level.FATAL, "unknown incoming event type");
 		}
 	}
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.SEVERE, () -> "Exception in ChallengeManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in ChallengeManager %s".formatted(ex.getMessage()), ex);
+		ex.printStackTrace();
 	}
 
 	@Override
@@ -74,7 +76,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 	private void scheduleChallengeHandling() {
 		// with try-resource it doesn't work
 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleAtFixedRate(() -> strategy.handle(activeChallenges, activeGames), 0, 10, TimeUnit.SECONDS);
+		scheduler.scheduleAtFixedRate(() -> strategy.handle(activeChallenges, activeGames), 10, 30, TimeUnit.SECONDS);
 	}
 
 	private void onStart(GameStart gameStart) {

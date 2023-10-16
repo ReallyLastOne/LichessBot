@@ -7,18 +7,20 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.utility.Context;
 
 public class HttpRequestSender {
-	private static final Logger logger = Logger.getLogger(HttpRequestSender.class.getName());
+	private static final Logger logger = LogManager.getLogger(HttpRequestSender.class.getName());
 
 	private HttpRequestSender() {
 	}
 
 	public static Optional<HttpResponse<String>> acceptChallenge(String id) {
+		logger.log(Level.INFO, () -> "Accepting challenge with id: " + id);
 		HttpRequest request = buildRequest(ACCEPT_CHALLENGE_URL.replace("{challengeId}", id),
 				HttpRequest.BodyPublishers.noBody());
 
@@ -53,6 +55,12 @@ public class HttpRequestSender {
 		return send(request);
 	}
 
+	public static Optional<HttpResponse<String>> getMyProfile() {
+		HttpRequest request = HttpUtil.authenticatedBuilder().uri(URI.create(MY_PROFILE)).GET().build();
+
+		return send(request);
+	}
+
 	private static HttpRequest buildRequest(String url, HttpRequest.BodyPublisher bodyPublisher) {
 		return builder(url, bodyPublisher).build();
 	}
@@ -70,8 +78,8 @@ public class HttpRequestSender {
 			return Optional.of(Context.getClient().send(request, HttpResponse.BodyHandlers.ofString()));
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-			logger.log(Level.SEVERE,
-					() -> "error occurred during sending request %s with exception %s".formatted(request, e.getMessage()));
+			logger.log(Level.FATAL, () -> "Error occurred during sending request %s with exception %s"
+					.formatted(request, e.getMessage()));
 			return Optional.empty();
 		}
 	}

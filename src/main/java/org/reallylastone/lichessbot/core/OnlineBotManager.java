@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Flow;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.event.bot.model.OnlineBotEvent;
 
 public class OnlineBotManager implements Flow.Subscriber<OnlineBotEvent> {
-	private final Logger logger = Logger.getLogger(OnlineBotManager.class.getName());
+	private final Logger logger = LogManager.getLogger(OnlineBotManager.class.getName());
 	private final List<OnlineBotEvent> events = new ArrayList<>();
 	private final Random random = new Random();
 	private Flow.Subscription subscription;
@@ -23,14 +24,14 @@ public class OnlineBotManager implements Flow.Subscriber<OnlineBotEvent> {
 
 	@Override
 	public void onNext(OnlineBotEvent item) {
-		logger.log(Level.FINER, () -> "Received: " + item);
+		logger.log(Level.DEBUG, () -> "Received: " + item);
 		subscription.request(1);
 		events.add(item);
 	}
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.SEVERE, () -> "Exception in OnlineBotManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in OnlineBotManager %s".formatted(ex.getMessage()), ex);
 	}
 
 	@Override

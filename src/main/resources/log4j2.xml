@@ -1,0 +1,29 @@
+<configuration monitorinterval="60">
+    <properties>
+        <property name="log-path">logs</property>
+        <property name="archive">${log-path}/archive</property>
+    </properties>
+    <appenders>
+        <console name="Console-Appender" target="SYSTEM_OUT">
+            <patternlayout>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%32t] %31c{1} : %msg%n
+                </pattern>>
+            </patternlayout>
+        </console>
+        <rollingfile name="RollingFile-Appender" filename="${log-path}/app.log"
+                     filepattern="${archive}/%d{yyyy-MM-dd}.log.gz">
+            <patternlayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%32t] %31c{1} : %msg%n"/>
+            <policies>
+                <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+            </policies>
+            <defaultrolloverstrategy max="30"/>
+        </rollingfile>
+    </appenders>
+    <loggers>
+        <root level="all">
+            <appenderref ref="Console-Appender" level="debug"/>
+            <appenderref ref="RollingFile-Appender" level="debug"/>
+        </root>
+    </loggers>
+</configuration>
