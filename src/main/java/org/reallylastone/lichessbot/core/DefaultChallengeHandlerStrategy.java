@@ -39,6 +39,7 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 		activeChallenges.entrySet()
 				.removeIf(challenge -> challenge.getKey().isBefore(LocalDateTime.now().minusSeconds(20)));
 
+		// TODO: generify the challenges that is declined - load from configuration
 		// we accept only challenges that matches given predicate, so we decline any
 		// other
 		Predicate<Challenge> entryPredicate = e -> e.rated && e.timeControl.limit <= 300
@@ -51,6 +52,7 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 			return;
 		}
 
+		// TODO: generify the challenges that can be accepted - load from configuration
 		// accept first matching challenge or create new one
 		activeChallenges.values().stream().filter(entryPredicate).findFirst()
 				.ifPresentOrElse(challenge -> HttpRequestSender.acceptChallenge(challenge.id), createNewChallenge());
@@ -58,10 +60,11 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 
 	private Runnable createNewChallenge() {
 		return () -> {
-			String random = "Dardd";
+			String random = opponentSupplier.get();
 			logger.log(Level.INFO, () -> "Sending game challenge to %s".formatted(random));
 
-			Map<String, String> challengeParams = Map.of("rated", "false", "clock.limit", "180", "clock.increment", "0",
+			// TODO: generify the challenges that is created - load from configuration
+			Map<String, String> challengeParams = Map.of("rated", "true", "clock.limit", "180", "clock.increment", "0",
 					"color", "random", "variant", "standard", "keepAliveStream", "false");
 			var response = HttpRequestSender.createChallenge(challengeParams.entrySet().stream()
 					.map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))

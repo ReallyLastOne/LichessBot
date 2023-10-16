@@ -31,7 +31,7 @@ public class OnlineBotManager implements Flow.Subscriber<OnlineBotEvent> {
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.ERROR, () -> "Exception in OnlineBotManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in OnlineBotManager %s".formatted(ex.getMessage()), ex);
 	}
 
 	@Override

@@ -29,7 +29,13 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 		HttpRequest request = HttpUtil.authenticatedBuilder().uri(URI.create(url))
 				.header("Content-Type", "application/x-ndjson").GET().build();
 		logger.log(Level.INFO, () -> "Starting listening on URL: " + url);
-		client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this));
+		try {
+			client.sendAsync(request, HttpResponse.BodyHandlers.fromLineSubscriber(this));
+		} catch (Exception e) {
+			e.printStackTrace();
+			// because after 1 hour of listening on api/stream/event, GOAWAY is received and stream is ended
+			start(url);
+		}
 	}
 
 	@Override
@@ -52,7 +58,7 @@ public class GenericEventProcessor<T> extends SubmissionPublisher<T> implements 
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.ERROR, () -> "Exception in GenericEventProcessor: %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in GenericEventProcessor: %s".formatted(ex.getMessage()), ex);
 		ex.printStackTrace();
 
 		closeExceptionally(ex);

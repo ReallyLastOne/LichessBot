@@ -64,7 +64,7 @@ public class ChallengeManager implements Flow.Subscriber<IncomingEvent> {
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.DEBUG, () -> "Exception in ChallengeManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in ChallengeManager %s".formatted(ex.getMessage()), ex);
 		ex.printStackTrace();
 	}
 

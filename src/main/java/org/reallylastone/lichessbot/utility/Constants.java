@@ -13,6 +13,7 @@ public class Constants {
 		public static final String CREATE_CHALLENGE = "https://lichess.org/api/challenge/{username}";
 		public static final String CANCEL_CHALLENGE = "https://lichess.org/api/challenge/{challengeId}/cancel";
 		public static final String DECLINE_CHALLENGE = "https://lichess.org/api/challenge/{challengeId}/decline";
+		public static final String MY_PROFILE = "https://lichess.org/api/account";
 
 		private URL() {
 		}

@@ -13,12 +13,14 @@ import org.reallylastone.lichessbot.event.bot.model.OnlineBotEvent;
 import org.reallylastone.lichessbot.event.incoming.IncomingEventFactory;
 import org.reallylastone.lichessbot.event.incoming.model.IncomingEvent;
 import org.reallylastone.lichessbot.utility.Context;
+import org.reallylastone.lichessbot.utility.Preconditions;
 
 public class Main {
 	private static final Logger logger = LogManager.getLogger(Main.class.getName());
 
 	public static void main(String[] args) throws InterruptedException {
 		logger.info("Starting application");
+		new Preconditions().check();
 
 		try (GenericEventProcessor<IncomingEvent> incomingEventsProcessor = new GenericEventProcessor<>(
 				Context.getClient(), IncomingEventFactory::produce);

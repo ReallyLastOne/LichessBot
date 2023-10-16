@@ -1,7 +1,5 @@
 package org.reallylastone.lichessbot.core;
 
-import static org.reallylastone.lichessbot.utility.Context.BOT_NAME;
-
 import java.util.List;
 import java.util.concurrent.Flow;
 
@@ -17,6 +15,7 @@ import org.reallylastone.lichessbot.stockfish.StockfishRunner;
 import org.reallylastone.lichessbot.stockfish.StockfishRunnerProxy;
 import org.reallylastone.lichessbot.stockfish.command.GenericCommand;
 import org.reallylastone.lichessbot.stockfish.command.GoMoveTimeCommand;
+import org.reallylastone.lichessbot.utility.Context;
 
 public class GameManager implements Flow.Subscriber<GameEvent> {
 	private final Logger logger = LogManager.getLogger(GameManager.class.getName());
@@ -37,17 +36,17 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 
 		switch (item) {
 		case GameFull gameFull -> {
-			logger.log(Level.INFO, () -> "start of new game with id %s".formatted(gameFull.id));
+			logger.log(Level.INFO, () -> "Start of new game with id: %s".formatted(gameFull.id));
 			onGameFull(gameFull);
 		}
 		case GameState gameState -> onGameState(gameState);
-		default -> logger.log(Level.INFO, () -> "got game event " + item);
+		default -> logger.log(Level.INFO, () -> "Got game event %s".formatted(item));
 		}
 	}
 
 	@Override
 	public void onError(Throwable ex) {
-		logger.log(Level.ERROR, () -> "Exception in GameManager %s".formatted(ex.getMessage()));
+		logger.log(Level.ERROR, () -> "Exception in GameManager %s".formatted(ex.getMessage()), ex);
 	}
 
 	@Override
@@ -84,7 +83,7 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 	private boolean isOwnTurn(White white, String moves) {
 		boolean evenNumberOfMoves = moves.equals("") || moves.split(" ").length % 2 == 0;
 
-		return white.name.equals(BOT_NAME) == evenNumberOfMoves;
+		return white.name.equals(Context.getBotName()) == evenNumberOfMoves;
 	}
 
 	private void handleOwnTurn() {
