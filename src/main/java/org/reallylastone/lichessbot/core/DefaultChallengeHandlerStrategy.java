@@ -83,6 +83,7 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 			return;
 		}
 
+        // TODO: make the challenge customizable
 		Optional<User> random = getRandomBot();
 		if (random.isPresent()) {
 			logger.info("Sending game challenge to {}", random);

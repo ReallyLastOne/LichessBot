@@ -1,8 +1,7 @@
 package org.reallylastone.lichessbot.core;
 
-import java.time.Duration;
-import java.util.List;
-
+import chariot.model.Event;
+import chariot.model.GameStateEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.stockfish.StockfishRunner;
@@ -11,10 +10,12 @@ import org.reallylastone.lichessbot.stockfish.command.GenericCommand;
 import org.reallylastone.lichessbot.stockfish.command.GoMoveTimeCommand;
 import org.reallylastone.lichessbot.utility.Context;
 
-import chariot.model.Event;
-import chariot.model.GameStateEvent;
+import java.time.Duration;
+import java.util.List;
 
 public class GameManager {
+	// TODO: time for move should probably depend on a game state, currently it's
+	// TODO: not very expandable
 	public static final long MOVE_TIME = Duration.ofSeconds(1).toMillis();
 	private final Logger logger = LogManager.getLogger(GameManager.class.getName());
 	private final StockfishRunner stockfishRunner = new StockfishRunnerProxy();

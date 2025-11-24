@@ -38,10 +38,11 @@ public class Context {
 		if (stockfishPath == null) {
 			String os = System.getProperty("os.name");
 
+            // TODO: move it to application.properties file
 			if (os.contains("Windows")) {
-				stockfishPath = ".\\runtime\\stockfish_15.1_win_x64_avx2\\stockfish-windows-2022-x86-64-avx2.exe";
+				stockfishPath = ".\\runtime\\stockfish_windows\\stockfish-windows-x86-64-avx2.exe";
 			} else if (os.contains("Linux")) {
-				stockfishPath = "../opt/app/runtime/stockfish/stockfish-ubuntu-x86-64-avx2";
+				stockfishPath = "../opt/app/runtime/stockfish_linux/stockfish-ubuntu-x86-64-avx2";
 			} else {
 				throw new IllegalStateException("stockfish engine not supported for operating system " + os);
 			}

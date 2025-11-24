@@ -48,7 +48,7 @@ public class ApplicationManager {
 
 	@SuppressWarnings("resource")
 	private void scheduleChallengeHandling() {
-		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+ 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 		scheduler.scheduleWithFixedDelay(() -> strategy.handle(activeChallenges, activeGames), 1, 1, TimeUnit.SECONDS);
 	}
 
