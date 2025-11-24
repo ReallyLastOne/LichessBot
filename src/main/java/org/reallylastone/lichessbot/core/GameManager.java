@@ -1,62 +1,53 @@
 package org.reallylastone.lichessbot.core;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.Flow;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.reallylastone.lichessbot.event.game.model.GameEvent;
-import org.reallylastone.lichessbot.event.game.model.GameFull;
-import org.reallylastone.lichessbot.event.game.model.GameState;
-import org.reallylastone.lichessbot.event.game.model.White;
-import org.reallylastone.lichessbot.http.HttpRequestSender;
 import org.reallylastone.lichessbot.stockfish.StockfishRunner;
 import org.reallylastone.lichessbot.stockfish.StockfishRunnerProxy;
 import org.reallylastone.lichessbot.stockfish.command.GenericCommand;
 import org.reallylastone.lichessbot.stockfish.command.GoMoveTimeCommand;
 import org.reallylastone.lichessbot.utility.Context;
 
-public class GameManager implements Flow.Subscriber<GameEvent> {
+import chariot.model.Event;
+import chariot.model.GameStateEvent;
+
+public class GameManager {
+	public static final long MOVE_TIME = Duration.ofSeconds(1).toMillis();
 	private final Logger logger = LogManager.getLogger(GameManager.class.getName());
 	private final StockfishRunner stockfishRunner = new StockfishRunnerProxy();
-	private Flow.Subscription subscription;
-	private GameState currentState;
-	private GameFull fullGame;
+	private final String gameId;
+	private final Event.GameStartEvent gameStartEvent;
+	private GameStateEvent.State currentState;
+	private GameStateEvent.Full fullGame;
 
-	@Override
-	public void onSubscribe(Flow.Subscription subscription) {
-		(this.subscription = subscription).request(1);
+	public GameManager(Event.GameStartEvent gameStartEvent) {
+		this.gameId = gameStartEvent.gameId();
+		this.gameStartEvent = gameStartEvent;
+		Thread.startVirtualThread(() -> {
+			logger.info("Subscribing to a game {}", gameId);
+			Context.auth().bot().connectToGame(gameId).stream().forEach(this::onNext);
+		});
 	}
 
-	@Override
-	public void onNext(GameEvent item) {
-		subscription.request(1);
-		logger.log(Level.DEBUG, () -> "Received: " + item);
+	private void onNext(GameStateEvent item) {
+		logger.debug("Game {} event received {} ", gameId, item);
 
 		switch (item) {
-		case GameFull gameFull -> {
-			logger.log(Level.INFO, () -> "Start of new game with id: %s".formatted(gameFull.id));
+		case GameStateEvent.Full gameFull -> {
+			logger.info("Start of a new game {}", gameFull.id());
 			onGameFull(gameFull);
 		}
-		case GameState gameState -> onGameState(gameState);
-		default -> logger.log(Level.INFO, () -> "Got game event %s".formatted(item));
+		case GameStateEvent.State gameState -> onGameState(gameState);
+		default -> logger.error("Unknown event received {} in game {}", item, gameId);
 		}
 	}
 
-	@Override
-	public void onError(Throwable ex) {
-		logger.log(Level.ERROR, () -> "Exception in GameManager %s".formatted(ex.getMessage()), ex);
-	}
-
-	@Override
-	public void onComplete() {
-		logger.log(Level.INFO, () -> "GameManager complete");
-	}
-
-	private void onGameFull(GameFull gameFull) {
+	private void onGameFull(GameStateEvent.Full gameFull) {
 		this.fullGame = gameFull;
-		currentState = fullGame.state;
+		currentState = fullGame.state();
 
 		stockfishRunner.startEngine();
 		stockfishRunner.sendCommand(new GenericCommand("uci"));
@@ -65,11 +56,10 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 		handleOwnTurn();
 	}
 
-	private void onGameState(GameState gameState) {
+	private void onGameState(GameStateEvent.State gameState) {
 		currentState = gameState;
 		if (isGameFinished()) {
-			logger.log(Level.INFO,
-					() -> "game with id %s finished, status %s".formatted(fullGame.id, gameState.status));
+			logger.info("Game {} finished, status {}", fullGame.id(), gameState.status().name());
 			stockfishRunner.stopEngine();
 		}
 
@@ -77,24 +67,24 @@ public class GameManager implements Flow.Subscriber<GameEvent> {
 	}
 
 	private boolean isGameFinished() {
-		return List.of("mate", "resign", "outoftime").contains(currentState.status);
+		return List.of("mate", "resign", "outoftime").contains(currentState.status().name());
 	}
 
-	private boolean isOwnTurn(White white, String moves) {
-		boolean evenNumberOfMoves = moves.equals("") || moves.split(" ").length % 2 == 0;
+	private boolean isOwnTurn(GameStateEvent.Side white, String moves) {
+		boolean evenNumberOfMoves = moves.isEmpty() || moves.split(" ").length % 2 == 0;
 
-		return white.name.equals(Context.getBotName()) == evenNumberOfMoves;
+		return white.name().equals(Context.getBotName()) == evenNumberOfMoves;
 	}
 
 	private void handleOwnTurn() {
-		boolean ownTurn = isOwnTurn(fullGame.white, currentState.moves);
+		boolean ownTurn = isOwnTurn(fullGame.white(), currentState.moves());
 		if (ownTurn)
 			onOwnTurn();
 	}
 
 	private void onOwnTurn() {
-		stockfishRunner.sendCommand(new GenericCommand("position startpos moves " + currentState.moves));
-		String stockfishLine = stockfishRunner.sendCommand(new GoMoveTimeCommand(1000));
-		HttpRequestSender.makeMove(fullGame.id, stockfishLine.split(" ")[1]);
+		stockfishRunner.sendCommand(new GenericCommand("position startpos moves " + currentState.moves()));
+		String stockfishLine = stockfishRunner.sendCommand(new GoMoveTimeCommand(MOVE_TIME));
+		Context.auth().bot().move(fullGame.id(), stockfishLine.split(" ")[1]);
 	}
 }

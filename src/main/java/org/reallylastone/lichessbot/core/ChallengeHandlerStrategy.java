@@ -1,12 +1,12 @@
 package org.reallylastone.lichessbot.core;
 
-import java.time.LocalDateTime;
+import chariot.model.Event;
+
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Map;
 
-import org.reallylastone.lichessbot.event.incoming.model.Challenge;
-import org.reallylastone.lichessbot.event.incoming.model.GameStart;
-
 public interface ChallengeHandlerStrategy {
-	void handle(Map<LocalDateTime, Challenge> activeChallenges, Collection<GameStart> activeGames);
+	void handle(Map<ZonedDateTime, Event.ChallengeCreatedEvent> activeChallenges,
+			Collection<Event.GameStartEvent> activeGames);
 }

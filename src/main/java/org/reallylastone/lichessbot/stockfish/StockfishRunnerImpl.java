@@ -1,17 +1,16 @@
 package org.reallylastone.lichessbot.stockfish;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.function.Predicate;
-
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.stockfish.command.QuitCommand;
 import org.reallylastone.lichessbot.stockfish.command.StockfishCommand;
 import org.reallylastone.lichessbot.utility.Context;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.function.Predicate;
 
 class StockfishRunnerImpl implements StockfishRunner {
 	private final Logger logger = LogManager.getLogger(StockfishRunnerImpl.class.getName());
@@ -30,11 +29,22 @@ class StockfishRunnerImpl implements StockfishRunner {
 		}
 	}
 
+	public void stopEngine() {
+		try {
+			logger.info("Stopping stockfish engine");
+			sendCommand(new QuitCommand());
+			processReader.close();
+			processWriter.close();
+		} catch (IOException e) {
+			throw new StockfishProcessingException("error occurred during closing engine processes", e);
+		}
+	}
+
 	public String sendCommand(StockfishCommand command) {
 		Predicate<String> commandDelimiter = command.getTerminator();
 
 		try {
-			logger.log(Level.TRACE, () -> "executing stockfish command %s".formatted(command));
+			logger.trace("Executing stockfish command {}", command);
 			processWriter.write(command.getCLICommand() + System.lineSeparator());
 			processWriter.flush();
 			return commandDelimiter == null ? null : getCommandOutput(commandDelimiter);
@@ -50,17 +60,6 @@ class StockfishRunnerImpl implements StockfishRunner {
 			if (commandDelimiter.test(line)) {
 				return line;
 			}
-		}
-	}
-
-	public void stopEngine() {
-		try {
-			logger.log(Level.INFO, "stopping stockfish engine...");
-			sendCommand(new QuitCommand());
-			processReader.close();
-			processWriter.close();
-		} catch (IOException e) {
-			throw new StockfishProcessingException("error occurred during closing engine processes", e);
 		}
 	}
 }

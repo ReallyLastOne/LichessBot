@@ -3,9 +3,9 @@ package org.reallylastone.lichessbot.stockfish.command;
 import java.util.function.Predicate;
 
 public class GoMoveTimeCommand implements StockfishCommand {
-	private final int moveTime;
+	private final long moveTime;
 
-	public GoMoveTimeCommand(int moveTime) {
+	public GoMoveTimeCommand(long moveTime) {
 		this.moveTime = moveTime;
 	}
 

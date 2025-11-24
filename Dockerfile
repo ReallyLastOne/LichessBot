@@ -1,4 +1,4 @@
-FROM maven:3.9.2-eclipse-temurin-20
+FROM maven:3.9.11-eclipse-temurin-25-alpine
 
 RUN mkdir /opt/app
 COPY . /opt/app
