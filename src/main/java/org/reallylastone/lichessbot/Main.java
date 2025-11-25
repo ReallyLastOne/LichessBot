@@ -12,7 +12,7 @@ public class Main {
 	static void main(String[] args) throws InterruptedException {
 		logger.info("Starting application");
 		new Preconditions().check();
-
+		logger.info("All preconditions fulfilled");
 		ApplicationManager manager = new ApplicationManager(new DefaultChallengeHandlerStrategy(1));
 		Thread.currentThread().join();
 	}

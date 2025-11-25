@@ -42,7 +42,7 @@ public class Context {
 			if (os.contains("Windows")) {
 				stockfishPath = ".\\runtime\\stockfish_windows\\stockfish-windows-x86-64-avx2.exe";
 			} else if (os.contains("Linux")) {
-				stockfishPath = "../opt/app/runtime/stockfish_linux/stockfish-ubuntu-x86-64-avx2";
+				stockfishPath = "/opt/app/runtime/stockfish_linux/stockfish-ubuntu-x86-64-avx2";
 			} else {
 				throw new IllegalStateException("stockfish engine not supported for operating system " + os);
 			}
