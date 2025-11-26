@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.core.ApplicationManager;
 import org.reallylastone.lichessbot.core.DefaultChallengeHandlerStrategy;
+import org.reallylastone.lichessbot.utility.ExitServerListener;
 import org.reallylastone.lichessbot.utility.Preconditions;
 
 public class Main {
@@ -13,7 +14,9 @@ public class Main {
 		logger.info("Starting application");
 		new Preconditions().check();
 		logger.info("All preconditions fulfilled");
-		ApplicationManager manager = new ApplicationManager(new DefaultChallengeHandlerStrategy(1));
-		Thread.currentThread().join();
+        ExitServerListener exitServerListener = new ExitServerListener(9000);
+		ApplicationManager manager = new ApplicationManager(new DefaultChallengeHandlerStrategy(1), exitServerListener);
+        Thread.startVirtualThread(exitServerListener);
+        Thread.currentThread().join();
 	}
 }

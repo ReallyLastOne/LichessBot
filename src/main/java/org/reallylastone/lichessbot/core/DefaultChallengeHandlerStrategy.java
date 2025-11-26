@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.reallylastone.lichessbot.utility.Utils.isOwnChallengePresent;
+
 public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy {
 	private final int maxActiveGames;
 	private final Logger logger = LogManager.getLogger(DefaultChallengeHandlerStrategy.class.getName());
@@ -64,8 +66,7 @@ public class DefaultChallengeHandlerStrategy implements ChallengeHandlerStrategy
 
 		// if any challenge is ours: we won't be accepting new ones to prevent duplicate
 		// games started
-		if (activeChallenges.values().stream().anyMatch(e -> e.challenge().players().challengerOpt().stream()
-				.anyMatch(f -> f.user().name().equals(Context.getBotName())))) {
+		if (isOwnChallengePresent(activeChallenges)) {
 			return;
 		}
 		if (activeGames.size() >= maxActiveGames) {

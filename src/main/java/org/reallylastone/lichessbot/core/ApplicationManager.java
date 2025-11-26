@@ -4,6 +4,7 @@ import chariot.model.Event;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reallylastone.lichessbot.utility.Context;
+import org.reallylastone.lichessbot.utility.ExitServerListener;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -15,14 +16,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.reallylastone.lichessbot.utility.Utils.findActiveChallenges;
+import static org.reallylastone.lichessbot.utility.Utils.isOwnChallengePresent;
+
 public class ApplicationManager {
 	private final Logger logger = LogManager.getLogger(ApplicationManager.class.getName());
 	private final ChallengeHandlerStrategy strategy;
 	private final Map<ZonedDateTime, Event.ChallengeCreatedEvent> activeChallenges = new Hashtable<>();
 	private final List<Event.GameStartEvent> activeGames = new ArrayList<>();
+	private final ExitServerListener exitServerListener;
 
-	public ApplicationManager(ChallengeHandlerStrategy strategy) {
+	public ApplicationManager(ChallengeHandlerStrategy strategy, ExitServerListener exitServerListener) {
 		this.strategy = strategy;
+		this.exitServerListener = exitServerListener;
 		Thread.startVirtualThread(() -> {
 			logger.info("Subscribing to application events");
 			Context.auth().bot().connect().stream().forEach(this::onNext);
@@ -48,8 +54,19 @@ public class ApplicationManager {
 
 	@SuppressWarnings("resource")
 	private void scheduleChallengeHandling() {
- 		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleWithFixedDelay(() -> strategy.handle(activeChallenges, activeGames), 1, 1, TimeUnit.SECONDS);
+		ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleWithFixedDelay(() -> {
+			if (!exitServerListener.isExitSignalReceived()) {
+				strategy.handle(activeChallenges, activeGames);
+			} else if (activeGames.isEmpty() && !isOwnChallengePresent(activeChallenges)) {
+				logger.info("No active games and EXIT signal received. Terminating application");
+				System.exit(1);
+			} else if (!activeGames.isEmpty() && isOwnChallengePresent(activeChallenges)) {
+				logger.info("EXIT signal received, declining own challenges");
+				findActiveChallenges(activeChallenges)
+						.forEach(challenge -> Context.auth().challenges().declineChallenge(challenge.id()));
+			}
+		}, 1, 1, TimeUnit.SECONDS);
 	}
 
 	private void onStart(Event.GameStartEvent event) {
